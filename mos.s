@@ -9,6 +9,9 @@
 .include "io.inc"
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 .proc oswrch_imp
 	jmp io::outchr
 .endproc
@@ -26,11 +29,123 @@ loop:
 	bne unimplemented
 	cmp #0
 	bne unimplemented
-	lda #4			; pretent we're DFS
+	lda #4			; pretend we're DFS
 	rts
 unimplemented:
 	brk
 .endproc
+
+.proc osbyte_imp
+
+	cmp #$82
+	beq read_machine_high_order_address
+
+	cmp #$83
+	beq read_OSHWM
+
+	jmp unimplemented
+
+read_machine_high_order_address:
+	ldx #0
+	ldy #0
+	rts
+
+read_OSHWM:
+	ldx #<$0800
+	ldy #>$0800
+	rts
+
+unimplemented:
+	brk
+.endproc
+
+.proc osword_imp
+
+	cmp #0
+	beq read_line_from_input
+
+	jmp unimplemented
+
+osword_0:
+	jsr read_line_from_input
+
+unimplemented:
+	brk
+.endproc
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; $a8 -> $af is available for use by mos routines.
+scratch := $a8
+
+
+.proc read_line_from_input
+
+param_block = scratch
+param_blockl = param_block
+param_blockh = param_blockl + 1
+
+bufferl = param_blockh + 1
+bufferh = bufferl + 1
+max_length = bufferh + 1
+min_ascii = max_length + 1
+max_ascii = min_ascii + 1
+
+	stx param_blockl
+	sty param_blockh
+
+	ldy #0
+	lda (param_block),y
+	sta bufferl
+
+	iny
+	lda (param_block),y
+	sta bufferh
+
+	iny
+	lda (param_block),y
+	sta max_length
+
+	iny
+	lda (param_block),y
+	sta min_ascii
+
+	iny
+	lda (param_block),y
+	sta max_ascii
+
+	ldy #0
+	ldx max_length
+loop:
+	jsr io::inchr
+	beq loop
+
+	cmp #27
+	beq escape_finish
+
+	cmp #13
+	beq cr_finish
+
+	sta (bufferl),y
+
+	inx
+	dey
+	bne loop
+
+escape_finish:
+	sec
+	rts
+
+cr_finish:
+	clc
+	rts
+
+.endproc
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ; OS Vectors
@@ -57,8 +172,8 @@ os_vectors:
 	.word 0			; IRQ1V
 	.word 0			; IRQ2V
 	.word 0			; CLIV
-	.word 0			; BYTEV
-	.word 0			; WORDV
+	.word osbyte_imp	; BYTEV
+	.word osword_imp	; WORDV
 	.word oswrch_imp	; WRCHV
 	.word osrdch_imp	; RDCHV
 	.word 0			; FILEV
@@ -96,6 +211,8 @@ language_rom = $8000
 	
 .endproc
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; MOS user entry points
 
