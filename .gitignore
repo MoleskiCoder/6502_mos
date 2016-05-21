@@ -6,5 +6,6 @@
 *.bin
 *.o
 *.lst
+*.dbg
 
 *.lnk

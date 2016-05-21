@@ -1,8 +1,8 @@
 %.o : %.s
-	ca65 $< --listing $(*F).lst
+	ca65 $< -g --listing $(*F).lst
 
 %.65b : %.o
-	ld65 $< -o $@ --config $(*F).cfg -vm --mapfile $(*F).map
+	ld65 $< -o $@ --config $(*F).cfg -vm --mapfile $(*F).map --dbgfile $(*F).dbg
 
 all: mos.65b
 
