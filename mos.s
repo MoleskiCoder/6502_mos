@@ -122,6 +122,8 @@ loop:
 	jsr io::inchr
 	beq loop
 
+	jsr OSASCI
+
 	cmp #27
 	beq escape_finish
 
