@@ -1,7 +1,7 @@
 .scope	io
 
-CONIN := $e004
-CONOUT := $e001
+CONIN := $0800
+CONOUT := $0801
 
 control = $30
 

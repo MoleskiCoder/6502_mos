@@ -51,8 +51,8 @@ read_machine_high_order_address:
 	rts
 
 read_OSHWM:
-	ldx #<$0800
-	ldy #>$0800
+	ldx #<$0900
+	ldy #>$0900
 	rts
 
 unimplemented:
