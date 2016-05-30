@@ -43,9 +43,10 @@ savedy := savedx + 1
 	ldy #0
 loop:	iny
 	lda (return),y
+	beq finished
 	jsr outchr
 	bne loop
-
+finished:
 	; Sort out the return address so 
 	clc
 	tya
