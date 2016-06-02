@@ -132,8 +132,8 @@ loop:
 
 	sta (bufferl),y
 
-	inx
-	dey
+	iny
+	dex
 	bne loop
 
 escape_finish:
